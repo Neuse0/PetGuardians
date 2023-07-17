@@ -1,6 +1,6 @@
 {
-    "name": "anasayfa",
-    "short_name": "anasayfa",
+    "name": "petguardian",
+    "short_name": "petguardian",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",

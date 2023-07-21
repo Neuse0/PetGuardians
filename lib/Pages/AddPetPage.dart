@@ -14,14 +14,15 @@ class _AddPetPageState extends State<AddPetPage> {
   File? _imageFile; // "?" ile null olabilen bir değişken olarak işaretleyin
   TextEditingController _titleController = TextEditingController();
   TextEditingController _ageController = TextEditingController();
-  TextEditingController _genderController = TextEditingController();
-  TextEditingController _vaccineController = TextEditingController();
-  TextEditingController _adoptionController = TextEditingController();
-  TextEditingController _chipController = TextEditingController();
   TextEditingController _type = TextEditingController();
   TextEditingController _phoneNumberController = TextEditingController();
 
   String? _selectedBreed;
+  String? _genderController;
+  String? _adoptionController;
+  String? _vaccineController;
+  String? _chipController;
+
   bool _isUploading = false; // Yükleme durumunu tutacak bool değişken
 
   @override
@@ -81,14 +82,100 @@ class _AddPetPageState extends State<AddPetPage> {
               _buildTitleField('Hayvan İsmi', _titleController),
               SizedBox(height: 16),
               _buildTitleField('Yaş', _ageController),
+
               SizedBox(height: 16),
-              _buildTitleField('Cinsiyet', _genderController),
+              DropdownButtonFormField<String>(
+                value: _genderController,
+                onChanged: (newValue) {
+                  setState(() {
+                    _genderController = newValue;
+                  });
+                },
+                items: [
+                  DropdownMenuItem(
+                    value: 'Erkek',
+                    child: Text('Erkek'),
+                  ),
+                  DropdownMenuItem(
+                    value: 'Dişi',
+                    child: Text('Dişi'),
+                  ),
+                  // Diğer cinsleri buraya ekleyin...
+                ],
+                decoration: InputDecoration(
+                  labelText: 'Cinsiyet Seç',
+                  border: OutlineInputBorder(),
+                ),
+              ),
               SizedBox(height: 16),
-              _buildTitleField('Aşı Durumu', _vaccineController),
-              SizedBox(height: 16),
-              _buildTitleField('Sahiplenme Durumu', _adoptionController),
-              SizedBox(height: 16),
-              _buildTitleField('Çip Durumu', _chipController),
+              DropdownButtonFormField<String>(
+                value: _adoptionController,
+                onChanged: (newValue) {
+                  setState(() {
+                    _adoptionController = newValue;
+                  });
+                },
+                items: [
+                  DropdownMenuItem(
+                    value: 'Daha önce sahiplendirilmedi',
+                    child: Text('Daha önce sahiplendirilmedi'),
+                  ),
+                  DropdownMenuItem(
+                    value: 'Daha önce sahiplendirildi',
+                    child: Text('Daha önce sahiplendirildi'),
+                  ),
+                ],
+                decoration: InputDecoration(
+                  labelText: 'Sahiplenme durumunu seç',
+                  border: OutlineInputBorder(),
+                ),
+              ),SizedBox(height: 16),
+              DropdownButtonFormField<String>(
+                value: _chipController,
+                onChanged: (newValue) {
+                  setState(() {
+                    _chipController = newValue;
+                  });
+                },
+                items: [
+                  DropdownMenuItem(
+                    value: 'Çipli',
+                    child: Text('Çipli'),
+                  ),
+                  DropdownMenuItem(
+                    value: 'Çipsiz',
+                    child: Text('Çipsiz'),
+                  ),
+                  // Diğer cinsleri buraya ekleyin...
+                ],
+                decoration: InputDecoration(
+                  labelText: 'Hayvanın Çip Durumunu Seç',
+                  border: OutlineInputBorder(),
+                ),
+              ),SizedBox(height: 16),
+              DropdownButtonFormField<String>(
+                value: _vaccineController,
+                onChanged: (newValue) {
+                  setState(() {
+                    _vaccineController = newValue;
+                  });
+                },
+                items: [
+                  DropdownMenuItem(
+                    value: 'Aşıları Tam',
+                    child: Text('Aşıları Tam'),
+                  ),
+                  DropdownMenuItem(
+                    value: 'Aşıları Eksik',
+                    child: Text('Aşıları Eksik'),
+                  ),
+                  // Diğer cinsleri buraya ekleyin...
+                ],
+                decoration: InputDecoration(
+                  labelText: 'Aşı Durumunu Seç',
+                  border: OutlineInputBorder(),
+                ),
+              ),
               SizedBox(height: 16),
               _buildTitleField('Hayvanın Türü', _type),
               SizedBox(height: 16),
@@ -136,11 +223,11 @@ class _AddPetPageState extends State<AddPetPage> {
         _titleController.text.isEmpty ||
         _selectedBreed == null ||
         _ageController.text.isEmpty ||
-        _genderController.text.isEmpty ||
+        _genderController == null ||
         _type.text.isEmpty ||
-        _vaccineController.text.isEmpty ||
-        _adoptionController.text.isEmpty ||
-        _chipController.text.isEmpty ||
+        _vaccineController == null ||
+        _adoptionController == null ||
+        _chipController == null ||
         _phoneNumberController.text.isEmpty) {
       print('Tüm alanlar doldurulmalıdır.');
       // Hata durumunda _isUploading'i false yaparak butona tekrar basılmasını etkinleştir
@@ -177,10 +264,10 @@ class _AddPetPageState extends State<AddPetPage> {
         'title': _titleController.text,
         'breed': _selectedBreed,
         'age': _ageController.text,
-        'gender': _genderController.text,
-        'vaccine': _vaccineController.text,
-        'adoption': _adoptionController.text,
-        'chip': _chipController.text,
+        'gender': _genderController,
+        'vaccine': _vaccineController,
+        'adoption': _adoptionController,
+        'chip': _chipController,
         'type': _type.text,
         'email': user?.email ?? '', // Eğer kullanıcı giriş yapmamışsa email'i boş bırakırız
         'phone': phoneNumber, // Store the validated phone number

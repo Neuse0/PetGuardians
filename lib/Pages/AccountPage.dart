@@ -23,91 +23,33 @@ class _AccountPageState extends State<AccountPage> {
   String? _imageUrl;
   String? _fullName;
 
-  static const _imageKey = 'profil_resmi'; // Key definition
-
   @override
   void initState() {
     super.initState();
-    _profilResminiYukle();
+    _getUserData();
   }
 
-  Future<void> _profilResminiYukle() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? resimYolu = prefs.getString(_imageKey);
-    if (resimYolu != null) {
-      setState(() {
-        _image = File(resimYolu);
-      });
-    }
-
+  Future<void> _getUserData() async {
     try {
       String uid = FirebaseAuth.instance.currentUser!.uid;
-      DocumentSnapshot userSnapshot = await FirebaseFirestore.instance
-          .collection('users')
-          .doc(uid)
-          .get();
+      DocumentSnapshot userSnapshot =
+      await FirebaseFirestore.instance.collection('users').doc(uid).get();
 
       if (userSnapshot.exists) {
-        // Check if the 'photoURL' field exists in the document
         Map<String, dynamic>? userData =
         userSnapshot.data() as Map<String, dynamic>?;
 
-        if (userData != null && userData.containsKey('photoURL')) {
-          String? photoURL = userData['photoURL'];
-          if (photoURL != null && photoURL.isNotEmpty) {
-            setState(() {
-              _imageUrl = photoURL;
-            });
-          }
+        if (userData != null) {
+          setState(() {
+            _fullName = userData['displayName'];
+            _imageUrl = userData['photoURL'];
+          });
         }
       }
     } catch (e) {
-      print("Profil resmi yüklenirken hata oluştu: $e");
+      print("Kullanıcı verileri alınırken hata oluştu: $e");
     }
   }
-
-  Future<void> _pickAndUploadImage() async {
-    final ImagePicker _picker = ImagePicker();
-    final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
-
-    if (image != null) {
-      setState(() {
-        _image = File(image.path);
-      });
-
-      try {
-        String uid = FirebaseAuth.instance.currentUser!.uid;
-        Reference ref = FirebaseStorage.instance
-            .ref()
-            .child('profile_images/$uid.jpg');
-        await ref.putFile(_image!);
-
-        // Get the URL of the uploaded image
-        String downloadURL = await ref.getDownloadURL();
-
-        // Update the 'photoURL' field in Firestore document
-        DocumentReference userDocRef =
-        FirebaseFirestore.instance.collection('users').doc(uid);
-        await userDocRef.set(
-          {'photoURL': downloadURL},
-          SetOptions(
-              merge: true), // Use merge to update only the 'photoURL' field
-        );
-
-        // Save the image path to SharedPreferences
-        SharedPreferences prefs = await SharedPreferences.getInstance();
-        prefs.setString(_imageKey, _image!.path);
-
-        // Set the _imageUrl to the updated URL
-        setState(() {
-          _imageUrl = downloadURL;
-        });
-      } catch (e) {
-        print("Error uploading image: $e");
-      }
-    }
-  }
-
 
   Future<void> _pickImage() async {
     final ImagePicker _picker = ImagePicker();
@@ -118,30 +60,22 @@ class _AccountPageState extends State<AccountPage> {
         _image = File(image.path);
       });
 
-      // Upload the image to Firebase Storage
       try {
         String uid = FirebaseAuth.instance.currentUser!.uid;
-        Reference ref = FirebaseStorage.instance.ref().child(
-            'profile_images/$uid.jpg');
+        Reference ref =
+        FirebaseStorage.instance.ref().child('profile_images/$uid.jpg');
         await ref.putFile(_image!);
 
-        // Get the URL of the uploaded image
         String downloadURL = await ref.getDownloadURL();
         setState(() {
-          _imageUrl = downloadURL; // Update profile image URL state
+          _imageUrl = downloadURL;
         });
 
-        // Update the 'photoURL' field in Firestore document
-        DocumentReference userDocRef = FirebaseFirestore.instance.collection(
-            'users').doc(uid);
-        await userDocRef.set(
-            {'photoURL': downloadURL}, SetOptions(merge: true));
-
-        // Save the image path to SharedPreferences
-        SharedPreferences prefs = await SharedPreferences.getInstance();
-        prefs.setString(_imageKey, _image!.path);
+        DocumentReference userDocRef =
+        FirebaseFirestore.instance.collection('users').doc(uid);
+        await userDocRef.set({'photoURL': downloadURL}, SetOptions(merge: true));
       } catch (e) {
-        print("Error uploading image: $e");
+        print("Profil resmi yüklenirken hata oluştu: $e");
       }
     }
   }
@@ -175,8 +109,10 @@ class _AccountPageState extends State<AccountPage> {
 
   void _changePassword() async {
     try {
-      await FirebaseAuth.instance.currentUser!.updatePassword("NEW_PASSWORD");
+      String newPassword = "123456"; // Replace with the new password
+      await FirebaseAuth.instance.currentUser!.updatePassword(newPassword);
       // Şifre başarıyla değiştirildi, kullanıcıyı bilgilendirin
+      print("Şifre başarıyla değiştirildi.");
     } catch (e) {
       print("Şifre değiştirirken hata oluştu: $e");
       // Hata durumunda kullanıcıya bilgi verin
@@ -185,20 +121,23 @@ class _AccountPageState extends State<AccountPage> {
 
   void _updateEmail() async {
     try {
-      await FirebaseAuth.instance.currentUser!.updateEmail("NEW_EMAIL");
+      String newEmail = "NEW_EMAIL"; // Replace with the new email address
+      await FirebaseAuth.instance.currentUser!.updateEmail(newEmail);
       // E-posta başarıyla güncellendi, kullanıcıyı bilgilendirin
+      print("E-posta başarıyla güncellendi.");
     } catch (e) {
       print("E-posta güncellenirken hata oluştu: $e");
       // Hata durumunda kullanıcıya bilgi verin
     }
   }
 
+
   void _updateUserProfile(String newName, String newPhoneNumber) async {
     try {
       // Firestore'da kullanıcı dökümanına erişin ve bilgileri güncelleyin
       String uid = FirebaseAuth.instance.currentUser!.uid;
-      DocumentReference userDocRef = FirebaseFirestore.instance.collection(
-          'users').doc(uid);
+      DocumentReference userDocRef =
+      FirebaseFirestore.instance.collection('users').doc(uid);
 
       await userDocRef.update({
         'displayName': newName,
@@ -206,29 +145,33 @@ class _AccountPageState extends State<AccountPage> {
       });
 
       // Bilgiler başarıyla güncellendi, kullanıcıyı bilgilendirin
+      print("Profil bilgileri başarıyla güncellendi.");
     } catch (e) {
       print("Kullanıcı bilgilerini güncellerken hata oluştu: $e");
       // Hata durumunda kullanıcıya bilgi verin
     }
   }
 
+
   void _addFavoritePet(String petName) async {
     try {
       // Firestore'da kullanıcının favori evcil hayvanları koleksiyonuna ekleyin
       String uid = FirebaseAuth.instance.currentUser!.uid;
-      CollectionReference favoritePetsColRef = FirebaseFirestore.instance
-          .collection('users').doc(uid).collection('favorite_pets');
+      CollectionReference favoritePetsColRef =
+      FirebaseFirestore.instance.collection('users').doc(uid).collection('favorite_pets');
 
       await favoritePetsColRef.add({
         'petName': petName,
       });
 
       // Evcil hayvan başarıyla favorilere eklendi, kullanıcıyı bilgilendirin
+      print("Evcil hayvan başarıyla favorilere eklendi.");
     } catch (e) {
       print("Evcil hayvan favorilere eklenirken hata oluştu: $e");
       // Hata durumunda kullanıcıya bilgi verin
     }
   }
+
 
   void _addPet() {
     Navigator.push(
@@ -241,17 +184,22 @@ class _AccountPageState extends State<AccountPage> {
     try {
       // Firestore'da kullanıcının evcil hayvanlarını koleksiyonundan silin
       String uid = FirebaseAuth.instance.currentUser!.uid;
-      DocumentReference petDocRef = FirebaseFirestore.instance.collection(
-          'users').doc(uid).collection('pets').doc(petId);
+      DocumentReference petDocRef = FirebaseFirestore.instance
+          .collection('users')
+          .doc(uid)
+          .collection('pets')
+          .doc(petId);
 
       await petDocRef.delete();
 
       // Evcil hayvan başarıyla silindi, kullanıcıyı bilgilendirin
+      print("Evcil hayvan başarıyla silindi.");
     } catch (e) {
       print("Evcil hayvan silinirken hata oluştu: $e");
       // Hata durumunda kullanıcıya bilgi verin
     }
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -368,7 +316,7 @@ class _AccountPageState extends State<AccountPage> {
             ),
             SizedBox(height: 16),
             ElevatedButton(
-              onPressed: _addPet, // Butona basıldığında AddPetPage sayfasına yönlendirilecek
+              onPressed: _addPet,
               style: ElevatedButton.styleFrom(
                 foregroundColor: Colors.white,
                 backgroundColor: Colors.pink,
@@ -464,7 +412,7 @@ class _AccountPageState extends State<AccountPage> {
       return NetworkImage(_imageUrl!);
     } else {
       return NetworkImage(
-          user?.photoURL ?? ''); // Default image from Firebase Auth
+          user?.photoURL ?? ''); // Firebase Authentication'dan gelen varsayılan profil resmi
     }
   }
 }

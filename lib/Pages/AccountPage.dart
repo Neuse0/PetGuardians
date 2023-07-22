@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:petguardian/LoginPage.dart';
+import 'package:petguardian/auth/LoginPage.dart';
 import 'package:petguardian/Pages/AddPetPage.dart';
 import 'package:petguardian/Pages/HomePage.dart';
 import 'package:petguardian/Pages/ShopPage.dart';

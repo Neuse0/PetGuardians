@@ -75,6 +75,7 @@ flutter:
     - images/pets_images/
     - images/shop_images/
     - images/animal_shelter/
+    - images/png/
 
 
   # An image asset can refer to one or more resolution-specific "variants", see

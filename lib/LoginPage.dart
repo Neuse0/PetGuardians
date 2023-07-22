@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:petguardian/extra/animation_utils.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
 import 'Pages/HomePage.dart';
 import 'SignupPage.dart';
+import 'package:flutter/animation.dart';
 
 class LoginPage extends StatefulWidget {
   @override
@@ -42,6 +43,11 @@ class _LoginPageState extends State<LoginPage> {
       _formKey.currentState!.save();
 
       try {
+        // Giriş butonuna basıldığında animasyonu başlatın
+        setState(() {
+          _showAnimation = true;
+        });
+
         UserCredential userCredential = await _auth.signInWithEmailAndPassword(
           email: email,
           password: password,
@@ -78,7 +84,7 @@ class _LoginPageState extends State<LoginPage> {
       }
     }
   }
-
+  bool _showAnimation = false;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -93,7 +99,7 @@ class _LoginPageState extends State<LoginPage> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.pets, color: Colors.black),
+                  if (_showAnimation) PatiAnimation(), // Pati animasyonunu burada kullanın
                   SizedBox(width: 10.0),
                   Text(
                     'PetGuardian',
@@ -104,7 +110,7 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                   ),
                   SizedBox(width: 10.0),
-                  Icon(Icons.pets, color: Colors.black),
+                  if (_showAnimation) PatiAnimation(), // Pati animasyonunu burada kullanın
                 ],
               ),
               SizedBox(height: 100.0),

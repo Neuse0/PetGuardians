@@ -41,7 +41,7 @@ class _AccountPageState extends State<AccountPage> {
 
         if (userData != null) {
           setState(() {
-            _fullName = userData['displayName'];
+            _fullName = userData['fullName'];
             _imageUrl = userData['photoURL'];
           });
         }

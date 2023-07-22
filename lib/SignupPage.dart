@@ -298,7 +298,7 @@ class _SignupPageState extends State<SignupPage> {
                     password = value!;
                   },
                   decoration: InputDecoration(
-                    labelText: 'Parola',
+                    labelText: 'Şifre',
                     prefixIcon: Icon(Icons.lock),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10),
